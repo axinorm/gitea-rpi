@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  gitea:
+    build:
+      context: ./gitea
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    container_name: gitea
+    volumes:
+      - gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - gitea.env
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+      - "127.0.0.1:2222:22"
+    networks:
+      - web
+      - internal
+
+  postgres:
+    image: postgres:12.1-alpine
+    restart: unless-stopped
+    container_name: postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - postgres.env
+    networks:
+      - internal
+
+networks:
+  internal:
+  web:
+    external: true
+
+volumes:
+  postgres:
+  gitea:
